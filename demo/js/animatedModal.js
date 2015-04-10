@@ -50,8 +50,12 @@
 			}
 		}, settings.closeButtonSelector);
 
-		var $content = settings.content || $('<div class="content"><div class="close">CLOSE</div></div>');
-		$modal.append($content).appendTo('body').one(animateEndEventNames, function() {
+		var $content = $(settings.content);
+		if ($content.length === 0) {
+			throw new Error('property "content" is required.');
+		}
+
+		$modal.append($content.clone()).appendTo('body').one(animateEndEventNames, function() {
 			$modal.trigger('afterOpen');
 		}).css({
 			opacity: settings.opacityIn,
@@ -60,6 +64,32 @@
 		$('body, html').css('overflow', 'hidden');
 
 		return $modal;
+	};
+
+	$.fn.animatedModal = function(options) {
+		return $(this).each(function() {
+			var $elm = $(this);
+			$elm.on('click', function(e) {
+				e.preventDefault();
+				if ($elm.data('animatedModal') === true) {
+					return;
+				}
+				$elm.data('animatedModal', true);
+				$elm.trigger('beforeOpen');
+				$.animatedModal(options).on({
+					afterOpen: function() {
+						$elm.trigger('afterOpen');
+					},
+					beforeClose: function() {
+						$elm.trigger('beforeClose');
+					},
+					afterClose: function() {
+						$elm.data('animatedModal', false);
+						$elm.trigger('afterClose');
+					}
+				});
+			});
+		});
 	};
 }(window, jQuery));
 
