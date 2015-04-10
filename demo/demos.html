@@ -55,29 +55,37 @@
         <script>
 
             //demo 01
-            $("#demo01").animatedModal();
-
-            //demo 02
-            $("#demo02").animatedModal({
-                modalTarget:'modal-02',
-                animatedIn:'lightSpeedIn',
-                animatedOut:'bounceOutDown',
-                color:'#3498db',
-                // Callbacks
-                beforeOpen: function() {
-                    console.log("The animation was called");
-                },           
-                afterOpen: function() {
-                    console.log("The animation is completed");
-                }, 
-                beforeClose: function() {
-                    console.log("The animation was called");
-                }, 
-                afterClose: function() {
-                    console.log("The animation is completed");
-                }
+            $("#demo01").on('click', function(e) {
+                e.preventDefault();
+                $.animatedModal({
+                    content: $($(this).attr('href')),
+                    closeButtonSelector: '.close-animatedModal'
+                });
             });
 
+            //demo 02
+            $("#demo02").on('click', function(e) {
+                e.preventDefault();
+                $.animatedModal({
+                    content: $($(this).attr('href')),
+                    closeButtonSelector: '.close-modal-02',
+                    animatedIn:'lightSpeedIn',
+                    animatedOut:'bounceOutDown',
+                    css: {
+                        backgroundColor: '#3498db'
+                    }
+                }).on({
+                    afterOpen: function() {
+                        console.log("The animation is completed");
+                    }, 
+                    beforeClose: function() {
+                        console.log("The animation was called");
+                    }, 
+                    afterClose: function() {
+                        console.log("The animation is completed");
+                    }
+                });
+            });
         </script>
 
     </body>

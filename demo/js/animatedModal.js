@@ -1,123 +1,67 @@
-/*=========================================
+/*!=========================================
  * animatedModal.js: Version 1.0
  * author: João Pereira
  * website: http://www.joaopereira.pt
  * email: joaopereirawd@gmail.com
  * Licensed MIT 
-=========================================*/
+ =========================================*/
 
-(function ($) {
- 
-    $.fn.animatedModal = function(options) {
-        var modal = $(this);
-        
-        //Defaults
-        var settings = $.extend({
-            modalTarget:'animatedModal', 
-            position:'fixed', 
-            width:'100%', 
-            height:'100%', 
-            top:'0px', 
-            left:'0px', 
-            zIndexIn: '9999',  
-            zIndexOut: '-9999',  
-            color: '#39BEB9', 
-            opacityIn:'1',  
-            opacityOut:'0', 
-            animatedIn:'zoomIn',
-            animatedOut:'zoomOut',
-            animationDuration:'.6s', 
-            overflow:'auto', 
-            // Callbacks
-            beforeOpen: function() {},           
-            afterOpen: function() {}, 
-            beforeClose: function() {}, 
-            afterClose: function() {}
- 
-            
+(function(window, $, undefined) {
+	"use strict";
 
-        }, options);
-        
-        var closeBt = $('.close-'+settings.modalTarget);
+	var animateEndEventNames = 'webkitAnimationEnd mozAnimationEnd MSAnimationEnd oanimationend animationend';
 
-        //console.log(closeBt)
+	$.animatedModal = function(options) {
+		//Defaults
+		var settings = $.extend({
+			closeButtonSelector: '.close',
+			opacityIn: '1',
+			opacityOut: '0',
+			zIndexIn: '9999',
+			zIndexOut: '-9999',
+			animatedIn: 'zoomIn',
+			animatedOut: 'zoomOut'
+		}, options);
 
-        var href = $(modal).attr('href'),
-            id = $('body').find('#'+settings.modalTarget),
-            idConc = '#'+id.attr('id');
-            //console.log(idConc);
-            // Default Classes
-            id.addClass('animated');
-            id.addClass(settings.modalTarget+'-off');
+		var css = $.extend({
+			position: 'fixed',
+			width: '100%',
+			height: '100%',
+			top: '0px',
+			left: '0px',
+			overflow: 'auto',
+			backgroundColor: '#39BEB9',
+			animationDuration: '0.6s'
+		}, settings.css);
 
-        //Init styles
-        var initStyles = {
-            'position':settings.position,
-            'width':settings.width,
-            'height':settings.height,
-            'top':settings.top,
-            'left':settings.left,
-            'background-color':settings.color,
-            'overflow-y':settings.overflow,
-            'z-index':settings.zIndexOut,
-            'opacity':settings.opacityOut,
-            '-webkit-animation-duration':settings.animationDuration
-        };
-        //Apply stles
-        id.css(initStyles);
+		var $modal = $('<section />', {
+			'class': ['animated-modal', settings.className, 'animated', settings.animatedIn].join(' ')
+		}).css($.extend({
+			zIndex: settings.zIndexOut,
+			opacity: settings.opacityOut
+		}, css)).on({
+			click: function(e) {
+				e.preventDefault();
+				$('body, html').css('overflow', 'auto');
+				$modal.trigger('beforeClose');
+				$modal.one(animateEndEventNames, function() {
+					$modal.trigger('afterClose').remove();
+				}).removeClass(settings.animatedIn).addClass(settings.animatedOut);
+			}
+		}, settings.closeButtonSelector);
 
-        modal.click(function(event) {       
-            event.preventDefault();
-            $('body, html').css({'overflow':'hidden'});
-            if (href == idConc) {
-                if (id.hasClass(settings.modalTarget+'-off')) {
-                    id.removeClass(settings.animatedOut);
-                    id.removeClass(settings.modalTarget+'-off');
-                    id.addClass(settings.modalTarget+'-on');
-                } 
+		var $content = settings.content || $('<div class="content"><div class="close">CLOSE</div></div>');
+		$modal.append($content).appendTo('body').one(animateEndEventNames, function() {
+			$modal.trigger('afterOpen');
+		}).css({
+			opacity: settings.opacityIn,
+			zIndex: settings.zIndexIn
+		});
+		$('body, html').css('overflow', 'hidden');
 
-                 if (id.hasClass(settings.modalTarget+'-on')) {
-                    settings.beforeOpen();
-                    id.css({'opacity':settings.opacityIn,'z-index':settings.zIndexIn});
-                    id.addClass(settings.animatedIn);  
-                    id.one('webkitAnimationEnd mozAnimationEnd MSAnimationEnd oanimationend animationend', afterOpen);
-                };  
-            } 
-        });
+		return $modal;
+	};
+}(window, jQuery));
 
 
 
-        closeBt.click(function(event) {
-            event.preventDefault();
-            $('body, html').css({'overflow':'auto'});
-
-            settings.beforeClose(); //beforeClose
-            if (id.hasClass(settings.modalTarget+'-on')) {
-                id.removeClass(settings.modalTarget+'-on');
-                id.addClass(settings.modalTarget+'-off');
-            } 
-
-            if (id.hasClass(settings.modalTarget+'-off')) {
-                id.removeClass(settings.animatedIn);
-                id.addClass(settings.animatedOut);
-                id.one('webkitAnimationEnd mozAnimationEnd MSAnimationEnd oanimationend animationend', afterClose);
-            };
-
-        });
-
-        function afterClose () {       
-            id.css({'z-index':settings.zIndexOut});
-            settings.afterClose(); //afterClose
-        }
-
-        function afterOpen () {       
-            settings.afterOpen(); //afterOpen
-        }
-
-    }; // End animatedModal.js
-
-}(jQuery));
-
-
-
-        

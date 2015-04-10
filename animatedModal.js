@@ -14,7 +14,7 @@
 	$.animatedModal = function(options) {
 		//Defaults
 		var settings = $.extend({
-			closeClass: '.close',
+			closeButtonSelector: '.close',
 			opacityIn: '1',
 			opacityOut: '0',
 			zIndexIn: '9999',
@@ -48,7 +48,7 @@
 					$modal.trigger('afterClose').remove();
 				}).removeClass(settings.animatedIn).addClass(settings.animatedOut);
 			}
-		}, settings.closeClassName);
+		}, settings.closeButtonSelector);
 
 		var $content = settings.content || $('<div class="content"><div class="close">CLOSE</div></div>');
 		$modal.append($content).appendTo('body').one(animateEndEventNames, function() {
